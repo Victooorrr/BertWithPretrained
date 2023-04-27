@@ -13,9 +13,9 @@ def format(path='./toutiao_cat_data.txt'):
     num_train, num_val = int(0.7 * num_samples), int(0.2 * num_samples)
     num_test = num_samples - num_train - num_val
     train_idx, val_idx, test_idx = idx[:num_train], idx[num_train:num_train + num_val], idx[-num_test:]
-    f_train = open('./toutiao_train.txt', 'w', encoding='utf-8')
-    f_val = open('./toutiao_val.txt', 'w', encoding='utf-8')
-    f_test = open('./toutiao_test.txt', 'w', encoding='utf-8')
+    f_train = open('./train.txt', 'w', encoding='utf-8')
+    f_val = open('./val.txt', 'w', encoding='utf-8')
+    f_test = open('./test.txt', 'w', encoding='utf-8')
 
     for i in train_idx:
         r = raw_data[i].strip('\n').split('_!_')
