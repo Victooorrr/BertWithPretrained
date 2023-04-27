@@ -15,13 +15,13 @@ import time
 class ModelConfig:
     def __init__(self):
         self.project_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-        self.dataset_dir = os.path.join(self.project_dir, 'data', 'SingleSentenceClassification')
+        self.dataset_dir = os.path.join(self.project_dir, 'data', 'Aid')
         self.pretrained_model_dir = os.path.join(self.project_dir, "bert_base_chinese")
         self.vocab_path = os.path.join(self.pretrained_model_dir, 'vocab.txt')
         self.device = torch.device('cuda:0' if torch.cuda.is_available() else 'cpu')
-        self.train_file_path = os.path.join(self.dataset_dir, 'toutiao_train.txt')
-        self.val_file_path = os.path.join(self.dataset_dir, 'toutiao_val.txt')
-        self.test_file_path = os.path.join(self.dataset_dir, 'toutiao_test.txt')
+        self.train_file_path = os.path.join(self.dataset_dir, 'train.txt')
+        self.val_file_path = os.path.join(self.dataset_dir, 'val.txt')
+        self.test_file_path = os.path.join(self.dataset_dir, 'test.txt')
         self.model_save_dir = os.path.join(self.project_dir, 'cache')
         self.logs_save_dir = os.path.join(self.project_dir, 'logs')
         self.split_sep = '_!_'

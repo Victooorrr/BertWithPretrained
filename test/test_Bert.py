@@ -27,17 +27,23 @@ if __name__ == '__main__':
     # ------ BertEmbedding -------
     bert_embedding = BertEmbeddings(config)
     bert_embedding_result = bert_embedding(src, token_type_ids=token_type_ids)
+    print(f"输入张量:{bert_embedding_result}\n")
     # [src_len, batch_size, hidden_size]
 
     # 测试类BertAttention
     bert_attention = BertAttention(config)
+    # 计算注意力计算
+    # 输入张量: bert_embedding_result
+    # 注意力掩码: attention_mask
     bert_attention_output = bert_attention(bert_embedding_result, attention_mask=attention_mask)
     print(f"BertAttention output shape [src_len, batch_size, hidden_size]: ", bert_attention_output.shape)
+    print(f"注意力计算{bert_attention_output}\n")
 
     # 测试类BertLayer
     bert_layer = BertLayer(config)
     bert_layer_output = bert_layer(bert_embedding_result, attention_mask)
     print(f"BertLayer output shape [src_len, batch_size, hidden_size]: ", bert_layer_output.shape)
+    print(f"Bert输入{bert_layer_output}\n")
 
     # 测试类BertEncoder
     bert_encoder = BertEncoder(config)
