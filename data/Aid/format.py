@@ -17,7 +17,7 @@ import numpy as np
 f_train = open('./train.txt', 'w', encoding='utf-8')
 f_val = open('./val.txt', 'w', encoding='utf-8')
 f_test = open('./test.txt', 'w', encoding='utf-8')
-raw_data = open('./raw_data.txt', 'r', encoding='utf-8').readlines()
+raw_data = open('./output.txt', 'r', encoding='utf-8').readlines()
 
 num_samples  = len(raw_data)
 idx = np.random.permutation(num_samples)
