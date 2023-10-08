@@ -26,7 +26,7 @@ class ModelConfig:
         self.logs_save_dir = os.path.join(self.project_dir, 'logs')
         self.split_sep = '_!_'
         self.is_sample_shuffle = True
-        self.batch_size = 2
+        self.batch_size = 32
         self.max_sen_len = None
         self.num_labels = 8
         self.epochs = 10
