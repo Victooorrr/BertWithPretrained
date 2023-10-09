@@ -19,7 +19,7 @@ with open('output.txt', 'w', encoding='utf-8') as txt_file:
         plain_text = re.sub(r'\n', ' ', b_column_rich_text)
 
         # 可选的：进行文本清洗，去除多余的空格、特殊字符等
-        plain_text = re.sub(r'\s+', ' ', plain_text).strip()
+        plain_text = re.sub(r'https://\S+', '', plain_text)
 
         column_f_value = row[5]  # F列的值
 

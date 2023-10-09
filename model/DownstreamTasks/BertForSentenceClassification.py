@@ -27,12 +27,16 @@ class BertForSentenceClassification(nn.Module):
         :param labels: [batch_size,]
         :return:
         """
+        # The output of the BERT model after processing the input
         pooled_output, _ = self.bert(input_ids=input_ids,
                                      attention_mask=attention_mask,
                                      token_type_ids=token_type_ids,
                                      position_ids=position_ids)  # [batch_size,hidden_size]
+        # Applying dropout to the BERT output.
         pooled_output = self.dropout(pooled_output)
+        # The logits for the sentence classification task
         logits = self.classifier(pooled_output)  # [batch_size, num_label]
+        # Calculating the loss(only in training phase)
         if labels is not None:
             loss_fct = nn.CrossEntropyLoss()
             loss = loss_fct(logits.view(-1, self.num_labels), labels.view(-1))
