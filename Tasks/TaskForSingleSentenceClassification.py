@@ -102,8 +102,8 @@ def train(config):
                 correct_label = label[incorrect_idx].item()  # Get the correct label
                 predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
                 # Write the incorrect prediction to the file
-                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
-                                  f"Incorrect Sample: {incorrect_text}, Correct Label: {correct_label}, Predicted Label: {predicted_label}\n")
+                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} ",
+                                  f"Incorrect Sample: {incorrect_text}\n")
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
