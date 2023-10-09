@@ -26,7 +26,7 @@ class ModelConfig:
         self.logs_save_dir = os.path.join(self.project_dir, 'logs')
         self.split_sep = '_!_'
         self.is_sample_shuffle = True
-        self.batch_size = 32
+        self.batch_size = 1
         self.max_sen_len = None
         self.num_labels = 8
         self.epochs = 10
@@ -73,10 +73,13 @@ def train(config):
     max_acc = 0
     for epoch in range(config.epochs):
         losses = 0
+        output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
+        tokenizer = BertTokenizer.from_pretrained(config.pretrained_model_dir)
         start_time = time.time()
         for idx, (sample, label) in enumerate(train_iter):
             sample = sample.to(config.device)  # [src_len, batch_size]
             label = label.to(config.device)
+            #
             padding_mask = (sample == data_loader.PAD_IDX).transpose(0, 1)
             loss, logits = model(
                 input_ids=sample,
@@ -89,6 +92,18 @@ def train(config):
             optimizer.step()
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
+
+            incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
+            for i in incorrect_preds:
+                incorrect_idx = i.item()
+                incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
+                # Convert token IDs back to text
+                incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
+                correct_label = label[incorrect_idx].item()  # Get the correct label
+                predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
+                # Write the incorrect prediction to the file
+                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
+                                  f"Incorrect Sample: {incorrect_text}, Correct Label: {correct_label}, Predicted Label: {predicted_label}\n")
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
