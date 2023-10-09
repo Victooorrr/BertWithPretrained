@@ -26,7 +26,7 @@ class ModelConfig:
         self.logs_save_dir = os.path.join(self.project_dir, 'logs')
         self.split_sep = '_!_'
         self.is_sample_shuffle = True
-        self.batch_size = 1
+        self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
         self.epochs = 10
@@ -102,7 +102,7 @@ def train(config):
                 correct_label = label[incorrect_idx].item()  # Get the correct label
                 predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
                 # Write the incorrect prediction to the file
-                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} ",
+                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
                                   f"Incorrect Sample: {incorrect_text}\n")
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
