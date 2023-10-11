@@ -71,9 +71,9 @@ def train(config):
                                                                            config.val_file_path,
                                                                            config.test_file_path)
     max_acc = 0
+    output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
     for epoch in range(config.epochs):
         losses = 0
-        output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
         tokenizer = BertTokenizer.from_pretrained(config.pretrained_model_dir)
         start_time = time.time()
         for idx, (sample, label) in enumerate(train_iter):
