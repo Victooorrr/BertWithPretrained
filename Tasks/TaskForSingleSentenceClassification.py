@@ -115,7 +115,7 @@ def train(config):
         logging.info(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
         # if (epoch + 1) % config.model_val_per_epoch == 0:
         acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
-        accuracy_history.append(acc.cpu().numpy())
+        accuracy_history.append(acc.data.cpu())
         logging.info(f"Accuracy on val {acc:.3f}")
         if acc > max_acc:
             max_acc = acc
