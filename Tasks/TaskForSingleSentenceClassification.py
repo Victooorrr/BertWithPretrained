@@ -30,7 +30,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 100
+        self.epochs = 1
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -94,7 +94,7 @@ def train(config):
             optimizer.step()
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
-            accuracy_history.append(acc)
+            accuracy_history.append(acc.cpu().numpy())
             incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
             for i in incorrect_preds:
                 incorrect_idx = i.item()
