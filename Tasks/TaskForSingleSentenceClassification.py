@@ -10,6 +10,7 @@ import logging
 import torch
 import os
 import time
+import matplotlib.pyplot as plt
 
 
 class ModelConfig:
@@ -72,6 +73,7 @@ def train(config):
                                                                            config.test_file_path)
     max_acc = 0
     output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
+    accuracy_history = []
     for epoch in range(config.epochs):
         losses = 0
         tokenizer = BertTokenizer.from_pretrained(config.pretrained_model_dir)
@@ -92,7 +94,7 @@ def train(config):
             optimizer.step()
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
-
+            accuracy_history.append(acc)
             incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
             for i in incorrect_preds:
                 incorrect_idx = i.item()
@@ -116,6 +118,12 @@ def train(config):
             if acc > max_acc:
                 max_acc = acc
                 torch.save(model.state_dict(), model_save_path)
+    plt.plot(range(1, config.epochs + 1), accuracy_history, marker='o', linestyle='-')
+    plt.title('Validation Accuracy Over Epochs')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.grid(True)
+    plt.savefig('./accuracy_plot.png')
 
 
 def inference(config):
