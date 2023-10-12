@@ -94,7 +94,7 @@ def train(config):
             optimizer.step()
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
-            accuracy_history.append(acc.cpu().numpy())
+
             incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
             for i in incorrect_preds:
                 incorrect_idx = i.item()
@@ -109,15 +109,17 @@ def train(config):
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
+
         end_time = time.time()
         train_loss = losses / len(train_iter)
         logging.info(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
-        if (epoch + 1) % config.model_val_per_epoch == 0:
-            acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
-            logging.info(f"Accuracy on val {acc:.3f}")
-            if acc > max_acc:
-                max_acc = acc
-                torch.save(model.state_dict(), model_save_path)
+        # if (epoch + 1) % config.model_val_per_epoch == 0:
+        acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
+        accuracy_history.append(acc.cpu().numpy())
+        logging.info(f"Accuracy on val {acc:.3f}")
+        if acc > max_acc:
+            max_acc = acc
+            torch.save(model.state_dict(), model_save_path)
     plt.plot(range(1, config.epochs + 1), accuracy_history, marker='o', linestyle='-')
     plt.title('Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
