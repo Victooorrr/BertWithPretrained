@@ -131,7 +131,7 @@ def train(config):
     plt.savefig('./accuracy_plot.png')
 
     plt.figure(2)
-    plt.plot(range(1, config.epochs + 1, 10), train_loss_history, marker='o', linestyle='-')
+    plt.plot(range(1, config.epochs + 1), train_loss_history, marker='o', linestyle='-')
     plt.title('Loss Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
