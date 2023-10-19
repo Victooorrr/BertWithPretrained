@@ -74,7 +74,7 @@ def train(config):
     max_acc = 0
     # output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
     val_accuracy_history = []
-    train_loss = []
+    train_loss_history = []
     for epoch in range(config.epochs):
         losses = 0
         start_time = time.time()
@@ -109,7 +109,7 @@ def train(config):
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
-                train_loss.append(loss.item())
+                train_loss_history.append(loss.item())
 
         end_time = time.time()
         train_loss = losses / len(train_iter)
@@ -129,7 +129,7 @@ def train(config):
     plt.savefig('./accuracy_plot.png')
 
     train_loss_pic = plt.figure(2)
-    train_loss_pic.plot(range(1, config.epochs + 1, 10), train_loss, marker='o', linestyle='-')
+    train_loss_pic.plot(range(1, config.epochs + 1, 10), train_loss_history, marker='o', linestyle='-')
     train_loss_pic.title('Loss Over Epochs')
     train_loss_pic.xlabel('Epoch')
     train_loss_pic.ylabel('Accuracy')
