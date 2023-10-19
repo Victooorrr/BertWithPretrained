@@ -133,6 +133,7 @@ def train(config):
         if val_accuracy > max_acc:
             max_acc = val_accuracy
             torch.save(model.state_dict(), model_save_path)
+            logging.info(f"## Save model on epoch {epoch + 1}##")
     plt.figure(1)
     plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-')
     plt.plot(range(1, config.epochs + 1), test_accuracy_history, marker='o', linestyle='-', color='g')
@@ -207,6 +208,7 @@ def evaluate4test(data_iter, model, device, PAD_IDX):
             predicted_labels.extend(logits.argmax(1).tolist())
             true_labels.extend(y.tolist())
         model.train()
+    return acc_sum / n, predicted_labels, true_labels
 
 
 
