@@ -176,6 +176,16 @@ def evaluate(data_iter, model, device, PAD_IDX):
 
 
 if __name__ == '__main__':
+    import os
+    directory = "../data/Aid"
+    files_to_delete = ['train_None.pt', 'val_None.pt', 'test_None.pt']
+    for file in files_to_delete:
+        file_path = os.path.join(directory, file)
+        if os.path.exists(file_path):
+            os.remove(file_path)
+            print(f"Deleted {file_path}")
+        else:
+            print(f"{file_path} does not exist")
     model_config = ModelConfig()
     train(model_config)
     inference(model_config)
