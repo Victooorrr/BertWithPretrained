@@ -30,7 +30,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 10
+        self.epochs = 100
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
