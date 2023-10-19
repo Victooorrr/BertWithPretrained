@@ -30,7 +30,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 30
+        self.epochs = 10
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -109,7 +109,7 @@ def train(config):
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
-                train_loss_history.append(loss.item())
+
 
         end_time = time.time()
         train_loss = losses / len(train_iter)
@@ -117,6 +117,7 @@ def train(config):
         # if (epoch + 1) % config.model_val_per_epoch == 0:
         acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
         val_accuracy_history.append(acc)
+        train_loss_history.append(train_loss)
         logging.info(f"Accuracy on val {acc:.3f}")
         if acc > max_acc:
             max_acc = acc
