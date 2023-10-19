@@ -33,7 +33,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 5
+        self.epochs = 40
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -175,7 +175,7 @@ def inference(config):
                                                                            config.test_file_path)
     acc, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device, PAD_IDX=data_loader.PAD_IDX)
     logging.info(f"Acc on test:{acc:.3f}")
-    class_names = ["非话题性", "提问", "陈述", "支持", "冲突", "澄清", "总结", "评价"]
+    class_names = ["Non-topical", "Question", "Statement", "Support", "Conflict", "Clarify", "Summary", "Comment"]
     plot_confusion_matrix(true_labels, predicted_labels, class_names)
 
 
