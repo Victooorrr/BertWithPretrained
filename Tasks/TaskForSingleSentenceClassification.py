@@ -121,6 +121,7 @@ def train(config):
         if acc > max_acc:
             max_acc = acc
             torch.save(model.state_dict(), model_save_path)
+    plt.figure(1)
     plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-')
     plt.title('Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
@@ -128,13 +129,13 @@ def train(config):
     plt.grid(True)
     plt.savefig('./accuracy_plot.png')
 
-    train_loss_pic = plt.figure(2)
-    train_loss_pic.plot(range(1, config.epochs + 1, 10), train_loss_history, marker='o', linestyle='-')
-    train_loss_pic.title('Loss Over Epochs')
-    train_loss_pic.xlabel('Epoch')
-    train_loss_pic.ylabel('Accuracy')
-    train_loss_pic.grid(True)
-    train_loss_pic.savefig('./train_loss_plot.png')
+    plt.figure(2)
+    plt.plot(range(1, config.epochs + 1, 10), train_loss_history, marker='o', linestyle='-')
+    plt.title('Loss Over Epochs')
+    plt.xlabel('Epoch')
+    plt.ylabel('Accuracy')
+    plt.grid(True)
+    plt.savefig('./train_loss_plot.png')
 def inference(config):
     model = BertForSentenceClassification(config,
                                           config.pretrained_model_dir)
