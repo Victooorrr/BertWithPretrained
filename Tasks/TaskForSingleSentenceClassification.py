@@ -11,6 +11,9 @@ import torch
 import os
 import time
 import matplotlib.pyplot as plt
+from sklearn.metrics import confusion_matrix
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class ModelConfig:
@@ -30,7 +33,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 100
+        self.epochs = 10
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -74,7 +77,9 @@ def train(config):
     max_acc = 0
     # output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
     val_accuracy_history = []
+    test_accuracy_history = []
     train_loss_history = []
+
     for epoch in range(config.epochs):
         losses = 0
         start_time = time.time()
@@ -115,15 +120,22 @@ def train(config):
         train_loss = losses / len(train_iter)
         logging.info(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
         # if (epoch + 1) % config.model_val_per_epoch == 0:
-        acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
-        val_accuracy_history.append(acc)
+        # 记录数据
+        val_accuracy = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
+        val_accuracy_history.append(val_accuracy)
+
+        test_accuracy = evaluate(test_iter, model, config.device, data_loader.PAD_IDX)
+        test_accuracy_history.append(test_accuracy)
+
+
         train_loss_history.append(train_loss)
-        logging.info(f"Accuracy on val {acc:.3f}")
-        if acc > max_acc:
-            max_acc = acc
+        logging.info(f"Accuracy on val {val_accuracy:.3f}")
+        if val_accuracy > max_acc:
+            max_acc = val_accuracy
             torch.save(model.state_dict(), model_save_path)
     plt.figure(1)
     plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-')
+    plt.plot(range(1, config.epochs + 1), test_accuracy_history, marker='o', linestyle='-', color='g')
     plt.title('Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
@@ -137,6 +149,8 @@ def train(config):
     plt.ylabel('Accuracy')
     plt.grid(True)
     plt.savefig('./train_loss_plot.png')
+
+
 def inference(config):
     model = BertForSentenceClassification(config,
                                           config.pretrained_model_dir)
@@ -158,8 +172,10 @@ def inference(config):
     train_iter, test_iter, val_iter = data_loader.load_train_val_test_data(config.train_file_path,
                                                                            config.val_file_path,
                                                                            config.test_file_path)
-    acc = evaluate(test_iter, model, device=config.device, PAD_IDX=data_loader.PAD_IDX)
+    acc, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device, PAD_IDX=data_loader.PAD_IDX)
     logging.info(f"Acc on test:{acc:.3f}")
+    class_names = ["非话题性", "提问", "陈述", "支持", "冲突", "澄清", "总结", "评价"]
+    plot_confusion_matrix(true_labels, predicted_labels, class_names)
 
 
 def evaluate(data_iter, model, device, PAD_IDX):
@@ -176,6 +192,35 @@ def evaluate(data_iter, model, device, PAD_IDX):
         return acc_sum / n
 
 
+def evaluate4test(data_iter, model, device, PAD_IDX):
+    true_labels = []  # 真实标签
+    predicted_labels = []  # 预测标签
+    model.eval()
+    with torch.no_grad():
+        acc_sum, n = 0.0, 0
+        for x, y in data_iter:
+            x, y = x.to(device), y.to(device)
+            padding_mask = (x == PAD_IDX).transpose(0, 1)
+            logits = model(x, attention_mask=padding_mask)
+            acc_sum += (logits.argmax(1) == y).float().sum().item()
+            n += len(y)
+            predicted_labels.extend(logits.argmax(1).tolist())
+            true_labels.extend(y.tolist())
+        model.train()
+
+
+
+def plot_confusion_matrix(true_labels, predicted_labels, class_names):
+    cm = confusion_matrix(true_labels, predicted_labels)
+    plt.figure(figsize=(8, 6))
+    sns.heatmap(cm, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    plt.xlabel('Predicted')
+    plt.ylabel('True')
+    plt.title('Confusion Matrix')
+    plt.show()
+
+
+
 if __name__ == '__main__':
     import os
     directory = "../data/Aid"
@@ -190,3 +235,4 @@ if __name__ == '__main__':
     model_config = ModelConfig()
     train(model_config)
     inference(model_config)
+
