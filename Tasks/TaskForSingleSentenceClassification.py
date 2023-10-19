@@ -30,7 +30,7 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 100
+        self.epochs = 30
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -72,11 +72,11 @@ def train(config):
                                                                            config.val_file_path,
                                                                            config.test_file_path)
     max_acc = 0
-    output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
-    accuracy_history = []
+    # output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
+    val_accuracy_history = []
+    train_loss = []
     for epoch in range(config.epochs):
         losses = 0
-        tokenizer = BertTokenizer.from_pretrained(config.pretrained_model_dir)
         start_time = time.time()
         for idx, (sample, label) in enumerate(train_iter):
             sample = sample.to(config.device)  # [src_len, batch_size]
@@ -95,39 +95,46 @@ def train(config):
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
 
-            incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
-            for i in incorrect_preds:
-                incorrect_idx = i.item()
-                incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
-                # Convert token IDs back to text
-                incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
-                correct_label = label[incorrect_idx].item()  # Get the correct label
-                predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
-                # Write the incorrect prediction to the file
-                output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
-                                  f"Incorrect Sample: {incorrect_text}\n")
+            # incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
+            # for i in incorrect_preds:
+            #     incorrect_idx = i.item()
+            #     incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
+            #     # Convert token IDs back to text
+            #     incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
+            #     correct_label = label[incorrect_idx].item()  # Get the correct label
+            #     predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
+            #     # Write the incorrect prediction to the file
+            #     output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
+            #                       f"Incorrect Sample: {incorrect_text}\n")
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
+                train_loss.append(loss.item())
 
         end_time = time.time()
         train_loss = losses / len(train_iter)
         logging.info(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
         # if (epoch + 1) % config.model_val_per_epoch == 0:
         acc = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
-        accuracy_history.append(acc)
+        val_accuracy_history.append(acc)
         logging.info(f"Accuracy on val {acc:.3f}")
         if acc > max_acc:
             max_acc = acc
             torch.save(model.state_dict(), model_save_path)
-    plt.plot(range(1, config.epochs + 1), accuracy_history, marker='o', linestyle='-')
+    plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-')
     plt.title('Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.grid(True)
     plt.savefig('./accuracy_plot.png')
 
-
+    train_loss_pic = plt.figure(2)
+    train_loss_pic.plot(range(1, config.epochs + 1, 10), train_loss, marker='o', linestyle='-')
+    train_loss_pic.title('Loss Over Epochs')
+    train_loss_pic.xlabel('Epoch')
+    train_loss_pic.ylabel('Accuracy')
+    train_loss_pic.grid(True)
+    train_loss_pic.savefig('./train_loss_plot.png')
 def inference(config):
     model = BertForSentenceClassification(config,
                                           config.pretrained_model_dir)
