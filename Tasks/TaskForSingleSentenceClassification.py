@@ -219,7 +219,7 @@ def plot_confusion_matrix(true_labels, predicted_labels, class_names):
     plt.xlabel('Predicted')
     plt.ylabel('True')
     plt.title('Confusion Matrix')
-    plt.show()
+    plt.savefig('./confusion_matrix.png')
 
 
 
