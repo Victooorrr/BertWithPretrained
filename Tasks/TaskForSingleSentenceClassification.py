@@ -34,7 +34,7 @@ class ModelConfig:
         self.is_sample_shuffle = True
         self.max_sen_len = None
         self.num_labels = 8
-        if socket.gethostname() == "autodl-container-90ef4388d6-fea6ba0a"
+        if socket.gethostname() == "autodl-container-90ef4388d6-fea6ba0a":
             self.epochs = 1
             self.batch_size = 1
         else:
