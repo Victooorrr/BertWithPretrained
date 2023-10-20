@@ -40,7 +40,7 @@ class ModelConfig:
         else:
             self.epochs = 1
             self.batch_size = 1
-        self.learning_rate = 2e-5
+        self.learning_rate = 3e-5
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
