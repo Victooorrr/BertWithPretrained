@@ -125,9 +125,9 @@ def train(config):
                 # Write the incorrect prediction to the file
                 # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
                 #                   f"Incorrect Sample: {incorrect_text}\n")
-                data = data.concat(
-                    {'Epoch': epoch, 'Batch': idx, 'Correct Label': correct_label, 'Predicted Label': predicted_label,
-                     'Incorrect Sample': incorrect_text}, ignore_index=True)
+                new_data = {'Epoch': epoch, 'Batch': idx, 'Correct Label': correct_label,
+                            'Predicted Label': predicted_label, 'Incorrect Sample': incorrect_text}
+                data = pd.concat([data, pd.DataFrame([new_data])], ignore_index=True)
 
             # Write the updated DataFrame to the Excel file
 
