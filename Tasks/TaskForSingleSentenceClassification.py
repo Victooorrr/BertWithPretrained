@@ -39,7 +39,7 @@ class ModelConfig:
         self.max_sen_len = None
         self.num_labels = 8
         if socket.gethostname() == "autodl-container-90ef4388d6-fea6ba0a":
-            self.epochs = 50
+            self.epochs = 2
             self.batch_size = 12
         else:
             self.epochs = 2
