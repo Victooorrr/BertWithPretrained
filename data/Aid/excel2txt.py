@@ -5,7 +5,7 @@ from openpyxl import load_workbook
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, message="The input looks more like a URL than markup.")
 
-workbook = load_workbook('分类算法数据.xlsx')
+workbook = load_workbook('分类算法数据-师兄.xlsx')
 # 选择要读取的工作表
 worksheet = workbook['Sheet1']
 
