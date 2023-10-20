@@ -235,7 +235,12 @@ if __name__ == '__main__':
             print(f"Deleted {file_path}")
         else:
             print(f"{file_path} does not exist")
-    os.remove("../cache/model.pt")
+
+    if os.path.exists("../cache/model.pt"):
+        os.remove("../cache/model.pt")
+        print(f"Deleted model.pt")
+    else:
+        print(f"model.pt does not exist")
     model_config = ModelConfig()
     train(model_config)
     inference(model_config)
