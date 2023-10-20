@@ -92,7 +92,7 @@ def train(config):
     val_accuracy_history = []
     test_accuracy_history = []
     train_loss_history = []
-
+    data = pd.DataFrame(columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
     for epoch in range(config.epochs):
         losses = 0
         start_time = time.time()
