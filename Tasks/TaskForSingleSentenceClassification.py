@@ -126,7 +126,7 @@ def train(config):
                 # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
                 #                   f"Incorrect Sample: {incorrect_text}\n")
                 with pd.ExcelWriter(filepath,
-                                    mode='a',
+                                    mode='a+',
                                     if_sheet_exists='overlay',
                                     engine='openpyxl') as writer:
                     df = pd.DataFrame([[epoch, idx, correct_label, predicted_label, incorrect_text]],
@@ -171,7 +171,7 @@ def train(config):
     plt.ylabel('Accuracy')
     plt.grid(True)
     plt.savefig('./train_loss_plot.png')
-    w
+
 
 
 def inference(config):
