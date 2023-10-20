@@ -125,13 +125,12 @@ def train(config):
                 # Write the incorrect prediction to the file
                 # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
                 #                   f"Incorrect Sample: {incorrect_text}\n")
-                with pd.ExcelWriter(filepath,
-                                    mode='a',
-                                    if_sheet_exists='overlay',
-                                    engine='openpyxl') as writer:
-                    df = pd.DataFrame([[epoch, idx, correct_label, predicted_label, incorrect_text]],
-                                      columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
-                    df.to_excel(writer, sheet_name='Sheet1', index=False)
+                data = data.append(
+                    {'Epoch': epoch, 'Batch': idx, 'Correct Label': correct_label, 'Predicted Label': predicted_label,
+                     'Incorrect Sample': incorrect_text}, ignore_index=True)
+
+            # Write the updated DataFrame to the Excel file
+
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
@@ -172,6 +171,8 @@ def train(config):
     plt.grid(True)
     plt.savefig('./train_loss_plot.png')
 
+    with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
+        data.to_excel(writer, sheet_name='Sheet1', index=False)
 
 
 def inference(config):
