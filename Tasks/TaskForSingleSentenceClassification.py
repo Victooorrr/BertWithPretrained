@@ -223,7 +223,7 @@ def plot_confusion_matrix(true_labels, predicted_labels, class_names):
     cm = confusion_matrix(true_labels, predicted_labels)
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
     plt.figure(figsize=(8, 6))
-    sns.heatmap(cm_normalized, annot=True, fmt='d', cmap='Blues', xticklabels=class_names, yticklabels=class_names)
+    sns.heatmap(cm_normalized, annot=True, cmap='Blues', xticklabels=class_names, yticklabels=class_names)
     plt.xlabel('Predicted')
     plt.ylabel('True')
     plt.title('Confusion Matrix')
