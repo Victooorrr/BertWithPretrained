@@ -1,6 +1,10 @@
 import socket
 import sys
 
+import openpyxl
+import pandas as pd
+
+
 sys.path.append('../')
 from model import BertForSentenceClassification
 from model import BertConfig
@@ -38,7 +42,7 @@ class ModelConfig:
             self.epochs = 50
             self.batch_size = 12
         else:
-            self.epochs = 1
+            self.epochs = 2
             self.batch_size = 1
         self.learning_rate = 1e-5
         self.model_val_per_epoch = 2
@@ -82,7 +86,9 @@ def train(config):
                                                                            config.val_file_path,
                                                                            config.test_file_path)
     max_acc = 0
-    # output_file = open('incorrect_predictions.txt', 'w', encoding='utf-8')
+    filepath = "./incorrect_predictions.xlsx"
+    workbook = openpyxl.Workbook()
+    workbook.save(filepath)
     val_accuracy_history = []
     test_accuracy_history = []
     train_loss_history = []
@@ -107,17 +113,25 @@ def train(config):
             losses += loss.item()
             acc = (logits.argmax(1) == label).float().mean()
 
-            # incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
-            # for i in incorrect_preds:
-            #     incorrect_idx = i.item()
-            #     incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
-            #     # Convert token IDs back to text
-            #     incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
-            #     correct_label = label[incorrect_idx].item()  # Get the correct label
-            #     predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
-            #     # Write the incorrect prediction to the file
-            #     output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
-            #                       f"Incorrect Sample: {incorrect_text}\n")
+            incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
+            for i in incorrect_preds:
+                incorrect_idx = i.item()
+                incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
+                # Convert token IDs back to text
+                tokenizer = BertTokenizer.from_pretrained(config.pretrained_model_dir)
+                incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
+                correct_label = label[incorrect_idx].item()  # Get the correct label
+                predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
+                # Write the incorrect prediction to the file
+                # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
+                #                   f"Incorrect Sample: {incorrect_text}\n")
+                with pd.ExcelWriter(filepath,
+                                    mode='a',
+                                    if_sheet_exists='overlay',
+                                    engine='openpyxl') as writer:
+                    df = pd.DataFrame([[epoch, idx, correct_label, predicted_label, incorrect_text]],
+                                      columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
+                    df.to_excel(writer, sheet_name='Sheet1', index=False)
             if idx % 10 == 0:
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
@@ -157,6 +171,7 @@ def train(config):
     plt.ylabel('Accuracy')
     plt.grid(True)
     plt.savefig('./train_loss_plot.png')
+    w
 
 
 def inference(config):
