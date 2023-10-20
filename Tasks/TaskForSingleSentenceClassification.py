@@ -33,7 +33,8 @@ class ModelConfig:
         self.batch_size = 12
         self.max_sen_len = None
         self.num_labels = 8
-        self.epochs = 40
+        self.epochs = 30
+        self.learning_rate = 1e-5
         self.model_val_per_epoch = 2
         logger_init(log_file_name='single', log_level=logging.INFO,
                     log_dir=self.logs_save_dir)
@@ -60,7 +61,7 @@ def train(config):
         model.load_state_dict(loaded_paras)
         logging.info("## 成功载入已有模型，进行追加训练......")
     model = model.to(config.device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=5e-5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
     model.train()
     bert_tokenize = BertTokenizer.from_pretrained(config.pretrained_model_dir).tokenize
     data_loader = LoadSingleSentenceClassificationDataset(vocab_path=config.vocab_path,
@@ -234,6 +235,7 @@ if __name__ == '__main__':
             print(f"Deleted {file_path}")
         else:
             print(f"{file_path} does not exist")
+    os.remove("../cache/model.pt")
     model_config = ModelConfig()
     train(model_config)
     inference(model_config)
