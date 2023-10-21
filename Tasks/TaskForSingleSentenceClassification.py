@@ -224,7 +224,7 @@ def evaluate4test(data_iter, model, device, PAD_IDX):
     filepath = "./test_incorrect_predictions.xlsx"
     workbook = openpyxl.Workbook()
     workbook.save(filepath)
-
+    data = pd.DataFrame(columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
     model.eval()
     with torch.no_grad():
         acc_sum, n = 0.0, 0
