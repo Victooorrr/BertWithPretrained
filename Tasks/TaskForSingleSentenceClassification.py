@@ -86,7 +86,7 @@ def train(config):
                                                                            config.val_file_path,
                                                                            config.test_file_path)
     max_acc = 0
-    filepath = "./incorrect_predictions.xlsx"
+    filepath = "./train_incorrect_predictions.xlsx"
     workbook = openpyxl.Workbook()
     workbook.save(filepath)
     val_accuracy_history = []
@@ -205,6 +205,7 @@ def inference(config):
 
 def evaluate(data_iter, model, device, PAD_IDX):
     model.eval()
+
     with torch.no_grad():
         acc_sum, n = 0.0, 0
         for x, y in data_iter:
@@ -220,17 +221,36 @@ def evaluate(data_iter, model, device, PAD_IDX):
 def evaluate4test(data_iter, model, device, PAD_IDX):
     true_labels = []  # 真实标签
     predicted_labels = []  # 预测标签
+    filepath = "./test_incorrect_predictions.xlsx"
+    workbook = openpyxl.Workbook()
+    workbook.save(filepath)
+
     model.eval()
     with torch.no_grad():
         acc_sum, n = 0.0, 0
-        for x, y in data_iter:
-            x, y = x.to(device), y.to(device)
-            padding_mask = (x == PAD_IDX).transpose(0, 1)
-            logits = model(x, attention_mask=padding_mask)
-            acc_sum += (logits.argmax(1) == y).float().sum().item()
-            n += len(y)
+        for sample, label in data_iter:
+            sample, label = sample.to(device), label.to(device)
+            padding_mask = (sample == PAD_IDX).transpose(0, 1)
+            logits = model(sample, attention_mask=padding_mask)
+            acc_sum += (logits.argmax(1) == label).float().sum().item()
+            n += len(label)
             predicted_labels.extend(logits.argmax(1).tolist())
-            true_labels.extend(y.tolist())
+            true_labels.extend(label.tolist())
+            incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
+            for i in incorrect_preds:
+                incorrect_idx = i.item()
+                incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
+                # Convert token IDs back to text
+                tokenizer = BertTokenizer.from_pretrained("../bert_base_chinese")
+                incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
+                correct_label = label[incorrect_idx].item()  # Get the correct label
+                predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
+                # Write the incorrect prediction to the file
+                # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
+                #                   f"Incorrect Sample: {incorrect_text}\n")
+                new_data = {'Correct Label': correct_label,
+                            'Predicted Label': predicted_label, 'Incorrect Sample': incorrect_text}
+                data = pd.concat([data, pd.DataFrame([new_data])], ignore_index=True)
         model.train()
     return acc_sum / n, predicted_labels, true_labels
 
