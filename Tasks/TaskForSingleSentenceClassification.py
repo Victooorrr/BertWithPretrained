@@ -252,6 +252,8 @@ def evaluate4test(data_iter, model, device, PAD_IDX):
                             'Predicted Label': predicted_label, 'Incorrect Sample': incorrect_text}
                 data = pd.concat([data, pd.DataFrame([new_data])], ignore_index=True)
         model.train()
+        with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
+            data.to_excel(writer, sheet_name='Sheet1', index=False)
     return acc_sum / n, predicted_labels, true_labels
 
 
