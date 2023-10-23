@@ -37,9 +37,10 @@ class ModelConfig:
         self.split_sep = '_!_'
         self.is_sample_shuffle = True
         self.max_sen_len = None
+        self.weight_decay = 1e-5
         self.num_labels = 8
         if socket.gethostname() == "autodl-container-90ef4388d6-fea6ba0a":
-            self.epochs = 100
+            self.epochs = 10
             self.batch_size = 12
         else:
             self.epochs = 2
@@ -71,7 +72,7 @@ def train(config):
         model.load_state_dict(loaded_paras)
         logging.info("## 成功载入已有模型，进行追加训练......")
     model = model.to(config.device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate,weight_decay=1e-5)
     model.train()
     bert_tokenize = BertTokenizer.from_pretrained(config.pretrained_model_dir).tokenize
     data_loader = LoadSingleSentenceClassificationDataset(vocab_path=config.vocab_path,
@@ -108,6 +109,15 @@ def train(config):
                 position_ids=None,
                 labels=label)
             optimizer.zero_grad()
+
+            # 计算L2正则化项
+            l2_reg = torch.tensor(0.)
+            for param in model.parameters():
+                param.to(config.device)
+
+            # 添加L2正则化项到损失
+            loss += config.weight_decay * l2_reg
+
             loss.backward()
             optimizer.step()
             losses += loss.item()
