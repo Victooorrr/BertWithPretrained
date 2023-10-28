@@ -40,7 +40,7 @@ class ModelConfig:
         self.weight_decay = 1e-5
         self.num_labels = 8
         if socket.gethostname() == "autodl-container-90ef4388d6-fea6ba0a":
-            self.epochs = 50
+            self.epochs = 100
             self.batch_size = 12
         else:
             self.epochs = 2
