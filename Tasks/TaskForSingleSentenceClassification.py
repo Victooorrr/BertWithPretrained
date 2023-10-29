@@ -168,6 +168,7 @@ def train(config):
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.grid(True)
+    plt.legend()
     plt.savefig('./accuracy_plot.png')
 
     plt.figure(2)
@@ -176,6 +177,7 @@ def train(config):
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.grid(True)
+    plt.legend()
     plt.savefig('./train_loss_plot.png')
 
     with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
