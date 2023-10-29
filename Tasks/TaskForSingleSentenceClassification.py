@@ -295,15 +295,15 @@ if __name__ == '__main__':
     else:
         print(f"model.pt does not exist")
     # os.system函数实际上不会引发Python异常，因此try和except块中的代码不会捕获到由于命令执行失败而引发的异常。
-    import subprocess
-
-    try:
-        subprocess.check_call("python ../data/Aid/excel2txt.py", shell=True)
-        subprocess.check_call("python ../data/Aid/format.py", shell=True)
-    except subprocess.CalledProcessError:
-        print("Failed to run excel2txt.py or format.py")
-    else:
-        print("Successfully ran excel2txt.py and format.py")
+    # import subprocess
+    #
+    # try:
+    #     subprocess.check_call("python ../data/Aid/excel2txt.py", shell=True)
+    #     subprocess.check_call("python ../data/Aid/format.py", shell=True)
+    # except subprocess.CalledProcessError:
+    #     print("Failed to run excel2txt.py or format.py")
+    # else:
+    #     print("Successfully ran excel2txt.py and format.py")
 
     model_config = ModelConfig()
     train(model_config)
