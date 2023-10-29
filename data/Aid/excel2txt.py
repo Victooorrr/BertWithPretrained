@@ -4,8 +4,8 @@ from bs4 import BeautifulSoup
 from openpyxl import load_workbook
 import warnings
 warnings.filterwarnings("ignore", category=UserWarning, message="The input looks more like a URL than markup.")
-os.chdir('../data/Aid')
-workbook = load_workbook('分类算法数据-师兄-新.xlsx')
+
+workbook = load_workbook('./分类算法数据-师兄-新.xlsx')
 # 选择要读取的工作表
 worksheet = workbook['Sheet1']
 

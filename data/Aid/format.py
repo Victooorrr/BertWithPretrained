@@ -13,7 +13,7 @@ import numpy as np
 #             tmp += word
 #     new_train_data.write(tmp + "_!_" + label)
 
-os.chdir('../data/Aid')
+
 f_train = open('./train.txt', 'w', encoding='utf-8')
 f_val = open('./val.txt', 'w', encoding='utf-8')
 f_test = open('./test.txt', 'w', encoding='utf-8')
