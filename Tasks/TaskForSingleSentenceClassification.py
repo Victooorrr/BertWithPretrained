@@ -4,7 +4,6 @@ import sys
 import openpyxl
 import pandas as pd
 
-
 sys.path.append('../')
 from model import BertForSentenceClassification
 from model import BertConfig
@@ -72,7 +71,7 @@ def train(config):
         model.load_state_dict(loaded_paras)
         logging.info("## 成功载入已有模型，进行追加训练......")
     model = model.to(config.device)
-    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate,weight_decay=1e-5)
+    optimizer = torch.optim.Adam(model.parameters(), lr=config.learning_rate, weight_decay=1e-5)
     model.train()
     bert_tokenize = BertTokenizer.from_pretrained(config.pretrained_model_dir).tokenize
     data_loader = LoadSingleSentenceClassificationDataset(vocab_path=config.vocab_path,
@@ -145,7 +144,6 @@ def train(config):
                 logging.info(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}], "
                              f"Train loss :{loss.item():.3f}, Train acc: {acc:.3f}")
 
-
         end_time = time.time()
         train_loss = losses / len(train_iter)
         logging.info(f"Epoch: {epoch}, Train loss: {train_loss:.3f}, Epoch time = {(end_time - start_time):.3f}s")
@@ -156,7 +154,6 @@ def train(config):
 
         test_accuracy = evaluate(test_iter, model, config.device, data_loader.PAD_IDX)
         test_accuracy_history.append(test_accuracy)
-
 
         train_loss_history.append(train_loss)
         logging.info(f"Accuracy on val {val_accuracy:.3f}")
@@ -206,7 +203,8 @@ def inference(config):
     train_iter, test_iter, val_iter = data_loader.load_train_val_test_data(config.train_file_path,
                                                                            config.val_file_path,
                                                                            config.test_file_path)
-    acc, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device, PAD_IDX=data_loader.PAD_IDX)
+    acc, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device,
+                                                       PAD_IDX=data_loader.PAD_IDX)
     logging.info(f"Acc on test:{acc:.3f}")
     class_names = ["Non-topical", "Question", "Statement", "Support", "Conflict", "Clarify", "Summary", "Comment"]
     Chinese_class_names = ["非主题性", "提问", "陈述", "支持", "冲突", "澄清", "总结", "评论"]
@@ -267,7 +265,6 @@ def evaluate4test(data_iter, model, device, PAD_IDX):
     return acc_sum / n, predicted_labels, true_labels
 
 
-
 def plot_confusion_matrix(true_labels, predicted_labels, class_names):
     cm = confusion_matrix(true_labels, predicted_labels)
     cm_normalized = cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
@@ -279,9 +276,9 @@ def plot_confusion_matrix(true_labels, predicted_labels, class_names):
     plt.savefig('./confusion_matrix.png')
 
 
-
 if __name__ == '__main__':
     import os
+
     directory = "../data/Aid"
     files_to_delete = ['train_None.pt', 'val_None.pt', 'test_None.pt']
     for file in files_to_delete:
@@ -297,7 +294,17 @@ if __name__ == '__main__':
         print(f"Deleted model.pt")
     else:
         print(f"model.pt does not exist")
+    # os.system函数实际上不会引发Python异常，因此try和except块中的代码不会捕获到由于命令执行失败而引发的异常。
+    import subprocess
+
+    try:
+        subprocess.check_call("python ../data/Aid/excel2txt.py", shell=True)
+        subprocess.check_call("python ../data/Aid/format.py", shell=True)
+    except subprocess.CalledProcessError:
+        print("Failed to run excel2txt.py or format.py")
+    else:
+        print("Successfully ran excel2txt.py and format.py")
+
     model_config = ModelConfig()
     train(model_config)
     inference(model_config)
-
