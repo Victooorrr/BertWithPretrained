@@ -162,8 +162,9 @@ def train(config):
             torch.save(model.state_dict(), model_save_path)
             logging.info(f"## Save model on epoch {epoch + 1}##")
     plt.figure(1)
-    plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-')
-    plt.plot(range(1, config.epochs + 1), test_accuracy_history, marker='o', linestyle='-', color='g')
+    plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-', label='Validation Accuracy')
+    plt.plot(range(1, config.epochs + 1), test_accuracy_history, marker='o', linestyle='-', color='g',
+             label='Test Accuracy')
     plt.title('Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
@@ -172,7 +173,7 @@ def train(config):
     plt.savefig('./accuracy_plot.png')
 
     plt.figure(2)
-    plt.plot(range(1, config.epochs + 1), train_loss_history, marker='o', linestyle='-')
+    plt.plot(range(1, config.epochs + 1), train_loss_history, marker='o', linestyle='-',label='Training Loss')
     plt.title('Loss Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
