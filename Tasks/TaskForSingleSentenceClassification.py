@@ -19,6 +19,7 @@ from sklearn.metrics import confusion_matrix
 import seaborn as sns
 import matplotlib.pyplot as plt
 import numpy as np
+from sklearn.metrics import classification_report
 
 
 class ModelConfig:
@@ -206,9 +207,9 @@ def inference(config):
     train_iter, test_iter, val_iter = data_loader.load_train_val_test_data(config.train_file_path,
                                                                            config.val_file_path,
                                                                            config.test_file_path)
-    acc, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device,
+    accuracy, precision, recall, f1_score, predicted_labels, true_labels = evaluate4test(test_iter, model, device=config.device,
                                                        PAD_IDX=data_loader.PAD_IDX)
-    logging.info(f"Acc on test:{acc:.3f}")
+    logging.info(f"Acc on test:{accuracy:.3f}, Precision on test:{precision:.3f}, Recall on test:{recall:.3f}, f1_score on test:{f1_score:.3f}")
     class_names = ["Non-topical", "Question", "Statement", "Support", "Conflict", "Clarify", "Summary", "Comment"]
     Chinese_class_names = ["非主题性", "提问", "陈述", "支持", "冲突", "澄清", "总结", "评论"]
     plot_confusion_matrix(true_labels, predicted_labels, class_names)
@@ -230,12 +231,13 @@ def evaluate(data_iter, model, device, PAD_IDX):
 
 
 def evaluate4test(data_iter, model, device, PAD_IDX):
-    true_labels = []  # 真实标签
-    predicted_labels = []  # 预测标签
+    true_labels = []
+    predicted_labels = []
     filepath = "./test_incorrect_predictions.xlsx"
     workbook = openpyxl.Workbook()
     workbook.save(filepath)
     data = pd.DataFrame(columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
+
     model.eval()
     with torch.no_grad():
         acc_sum, n = 0.0, 0
@@ -247,25 +249,36 @@ def evaluate4test(data_iter, model, device, PAD_IDX):
             n += len(label)
             predicted_labels.extend(logits.argmax(1).tolist())
             true_labels.extend(label.tolist())
-            incorrect_preds = (logits.argmax(1) != label).nonzero()  # Find indices of incorrect predictions
+            incorrect_preds = (logits.argmax(1) != label).nonzero()
+
             for i in incorrect_preds:
                 incorrect_idx = i.item()
-                incorrect_ids = sample[:, incorrect_idx].tolist()  # Get the token IDs of the incorrect sample as a list
-                # Convert token IDs back to text
+                incorrect_ids = sample[:, incorrect_idx].tolist()
                 tokenizer = BertTokenizer.from_pretrained("../bert_base_chinese")
                 incorrect_text = tokenizer.decode(incorrect_ids, skip_special_tokens=True)
-                correct_label = label[incorrect_idx].item()  # Get the correct label
-                predicted_label = logits[incorrect_idx].argmax().item()  # Get the predicted label
-                # Write the incorrect prediction to the file
-                # output_file.write(f"Epoch: {epoch}, Batch[{idx}/{len(train_iter)}],Correct Label: {correct_label}, Predicted Label: {predicted_label} "
-                #                   f"Incorrect Sample: {incorrect_text}\n")
+                correct_label = label[incorrect_idx].item()
+                predicted_label = logits[incorrect_idx].argmax().item()
+
                 new_data = {'Correct Label': correct_label,
                             'Predicted Label': predicted_label, 'Incorrect Sample': incorrect_text}
                 data = pd.concat([data, pd.DataFrame([new_data])], ignore_index=True)
-        model.train()
-        with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
-            data.to_excel(writer, sheet_name='Sheet1', index=False)
-    return acc_sum / n, predicted_labels, true_labels
+
+    accuracy = acc_sum / n
+
+    # Generate the classification report
+    report = classification_report(true_labels, predicted_labels, digits=4, output_dict=True)
+
+    # Extract precision, recall, and F1-score from the report
+    precision = report['weighted avg']['precision']
+    recall = report['weighted avg']['recall']
+    f1_score = report['weighted avg']['f1-score']
+
+    model.train()
+
+    with pd.ExcelWriter(filepath, mode='w', engine='openpyxl') as writer:
+        data.to_excel(writer, sheet_name='Sheet1', index=False)
+
+    return accuracy, precision, recall, f1_score, predicted_labels, true_labels
 
 
 def plot_confusion_matrix(true_labels, predicted_labels, class_names):
