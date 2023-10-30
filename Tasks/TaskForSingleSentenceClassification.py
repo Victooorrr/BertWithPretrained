@@ -91,7 +91,7 @@ def train(config):
     workbook = openpyxl.Workbook()
     workbook.save(filepath)
     val_accuracy_history = []
-    test_accuracy_history = []
+    train_accuracy_history = []
     train_loss_history = []
     data = pd.DataFrame(columns=['Epoch', 'Batch', 'Correct Label', 'Predicted Label', 'Incorrect Sample'])
     for epoch in range(config.epochs):
@@ -153,8 +153,8 @@ def train(config):
         val_accuracy = evaluate(val_iter, model, config.device, data_loader.PAD_IDX)
         val_accuracy_history.append(val_accuracy)
 
-        test_accuracy = evaluate(test_iter, model, config.device, data_loader.PAD_IDX)
-        test_accuracy_history.append(test_accuracy)
+        train_accuracy = evaluate(train_iter, model, config.device, data_loader.PAD_IDX)
+        train_accuracy_history.append(train_accuracy)
 
         train_loss_history.append(train_loss)
         logging.info(f"Accuracy on val {val_accuracy:.3f}")
@@ -164,9 +164,9 @@ def train(config):
             logging.info(f"## Save model on epoch {epoch + 1}##")
     plt.figure(1)
     plt.plot(range(1, config.epochs + 1), val_accuracy_history, marker='o', linestyle='-', label='Validation Accuracy')
-    plt.plot(range(1, config.epochs + 1), test_accuracy_history, marker='o', linestyle='-', color='g',
-             label='Test Accuracy')
-    plt.title('Validation Accuracy Over Epochs')
+    plt.plot(range(1, config.epochs + 1), train_accuracy_history, marker='o', linestyle='-', color='g',
+             label='Train Accuracy')
+    plt.title('Train and Validation Accuracy Over Epochs')
     plt.xlabel('Epoch')
     plt.ylabel('Accuracy')
     plt.grid(True)
