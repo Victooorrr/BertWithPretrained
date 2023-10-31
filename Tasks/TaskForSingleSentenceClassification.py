@@ -295,21 +295,21 @@ def plot_confusion_matrix(true_labels, predicted_labels, class_names):
 if __name__ == '__main__':
     import os
 
-    directory = "../data/Aid"
-    files_to_delete = ['train_None.pt', 'val_None.pt', 'test_None.pt']
-    for file in files_to_delete:
-        file_path = os.path.join(directory, file)
-        if os.path.exists(file_path):
-            os.remove(file_path)
-            print(f"Deleted {file_path}")
-        else:
-            print(f"{file_path} does not exist")
-
-    if os.path.exists("../cache/model.pt"):
-        os.remove("../cache/model.pt")
-        print(f"Deleted model.pt")
-    else:
-        print(f"model.pt does not exist")
+    # directory = "../data/Aid"
+    # files_to_delete = ['train_None.pt', 'val_None.pt', 'test_None.pt']
+    # for file in files_to_delete:
+    #     file_path = os.path.join(directory, file)
+    #     if os.path.exists(file_path):
+    #         os.remove(file_path)
+    #         print(f"Deleted {file_path}")
+    #     else:
+    #         print(f"{file_path} does not exist")
+    #
+    # if os.path.exists("../cache/model.pt"):
+    #     os.remove("../cache/model.pt")
+    #     print(f"Deleted model.pt")
+    # else:
+    #     print(f"model.pt does not exist")
     # os.system函数实际上不会引发Python异常，因此try和except块中的代码不会捕获到由于命令执行失败而引发的异常。
     # import subprocess
     #
@@ -322,5 +322,5 @@ if __name__ == '__main__':
     #     print("Successfully ran excel2txt.py and format.py")
 
     model_config = ModelConfig()
-    train(model_config)
+    # train(model_config)
     inference(model_config)
